@@ -5,9 +5,14 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.SocketTimeoutException;
 
 /**
  * Temporary class. TODO:Should be tested
@@ -65,4 +70,25 @@ public class Utilities {
         }
     }
 
+    /**
+     * Retrieves a HTML document as {@link org.jsoup.nodes.Document} from the given link.
+     *
+     * @param link - the given link
+     * @return {@link org.jsoup.nodes.Document} of the given HTML link
+     * @throws java.io.IOException
+     */
+    public static Document retrieveHtmlDocument(String link) throws IOException {
+        link = StringEscapeUtils.escapeHtml4(link);
+        Document htmlDocument = null;
+        boolean documentRetrieved = false;
+
+        //in case the an exception occurs.
+        while (!documentRetrieved) {
+            try {
+                htmlDocument = Jsoup.connect(link).get();
+                documentRetrieved = true;
+            } catch (SocketTimeoutException e) {}
+        }
+        return htmlDocument;
+    }
 }
