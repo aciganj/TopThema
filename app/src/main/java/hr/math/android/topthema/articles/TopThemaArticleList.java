@@ -32,7 +32,7 @@ public class TopThemaArticleList implements IArticleList {
      * @throws IOException
      */
 	public List<TopThemaArticle> getLatestArticles() throws IOException {
-		List<TopThemaArticle> listOfArticles = new ArrayList<TopThemaArticle>();
+        List<TopThemaArticle> listOfArticles = new ArrayList<TopThemaArticle>();
 		
 		for (int i = 0; i < possibleNumberOfArticles(); i++) {
 			String articleLink = getArticleLinkAtIndex(i);

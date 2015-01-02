@@ -1,6 +1,7 @@
 package hr.math.android.topthema.articles;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**

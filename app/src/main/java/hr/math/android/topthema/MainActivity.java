@@ -1,51 +1,66 @@
 package hr.math.android.topthema;
 
 import android.app.DownloadManager;
+import android.app.ListActivity;
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+import hr.math.android.topthema.articles.IArticleList;
+import hr.math.android.topthema.articles.TopThemaArticle;
+import hr.math.android.topthema.articles.TopThemaArticleList;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ListActivity {
+
+    private ArrayAdapter<TopThemaArticle> topThemaAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        System.out.println("On create");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        setListAdapter(topThemaAdapter);
+
+        new DownloadArticlesTask().execute();
+
     }
 
+    private class DownloadArticlesTask extends AsyncTask<Void, Void, Void> {
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        @Override
+        protected Void doInBackground(Void... params) {
+            IArticleList articleList = null;
+            try {
+                articleList = new TopThemaArticleList();
+                topThemaAdapter = new ArrayAdapter<TopThemaArticle>(MainActivity.this, R.layout.list_item,
+                        articleList.getLatestArticles());
+            } catch (IOException e) {
+                e.printStackTrace();
+            };
+            return null;
         }
 
-        return super.onOptionsItemSelected(item);
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            setListAdapter(topThemaAdapter);
+            topThemaAdapter.notifyDataSetChanged();
+            System.out.println("Notifying data set changed");
+        }
     }
-
 }

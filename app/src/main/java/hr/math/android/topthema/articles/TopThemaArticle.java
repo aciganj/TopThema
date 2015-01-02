@@ -48,6 +48,6 @@ public class TopThemaArticle {
 	 */
 	@Override
 	public String toString() {
-		return "TopThemaArticle [title=" + title + ", mp3Link=" + mp3Link + "]";
+		return title;
 	}
 }
