@@ -1,23 +1,10 @@
 package hr.math.android.topthema;
 
-import android.app.DownloadManager;
 import android.app.ListActivity;
-import android.content.Context;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,17 +16,19 @@ import hr.math.android.topthema.articles.TopThemaArticleList;
 public class MainActivity extends ListActivity {
 
     private ArrayAdapter<TopThemaArticle> topThemaAdapter;
+    private List<TopThemaArticle> articles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        System.out.println("On create");
         super.onCreate(savedInstanceState);
 
+        articles = new ArrayList<>();
+        topThemaAdapter = new ArrayAdapter<TopThemaArticle>(MainActivity.this, R.layout.list_item, articles);
         setListAdapter(topThemaAdapter);
-
         new DownloadArticlesTask().execute();
 
     }
+    
 
     private class DownloadArticlesTask extends AsyncTask<Void, Void, Void> {
 
@@ -48,8 +37,7 @@ public class MainActivity extends ListActivity {
             IArticleList articleList = null;
             try {
                 articleList = new TopThemaArticleList();
-                topThemaAdapter = new ArrayAdapter<TopThemaArticle>(MainActivity.this, R.layout.list_item,
-                        articleList.getLatestArticles());
+                articles.addAll(articleList.getLatestArticles());
             } catch (IOException e) {
                 e.printStackTrace();
             };
