@@ -28,7 +28,7 @@ public class MainActivity extends ListActivity {
         new DownloadArticlesTask().execute();
 
     }
-    
+
 
     private class DownloadArticlesTask extends AsyncTask<Void, Void, Void> {
 
