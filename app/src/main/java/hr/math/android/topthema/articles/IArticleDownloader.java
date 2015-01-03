@@ -10,11 +10,17 @@ import java.util.List;
  * @author Alen Kosanović
  *
  */
-public interface IArticleList {
+public interface IArticleDownloader {
 	/**
 	 * Fetches only the latest top thema articles from the internet.
 	 * @return the latest top thema articles from the internet
 	 * @throws java.io.IOException
 	 */
 	List<TopThemaArticle> getLatestArticles() throws IOException;
+
+    /**
+     * Adds an listener that is activated when the {@link IArticleDownloader} downloads an article.
+     * @param listener
+     */
+    void addArticleDownloadedListener(ArticleDownloadedListener listener);
 }

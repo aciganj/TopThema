@@ -15,15 +15,16 @@ import org.jsoup.nodes.Element;
  * @author Alen Kosanović
  *
  */
-public class TopThemaArticleList implements IArticleList {
+public class TopThemaArticleDownloader implements IArticleDownloader {
     /**
      * A URL that redirects to the top thema website.
      */
 	private static final String TOP_THEMA_ROOT_LINK = "http://www.dw.de/deutsch-lernen/top-thema/s-8031";
 
 	private Document rootDocument;
+    private List<ArticleDownloadedListener> listenerCollection = new ArrayList<>();
 
-	public TopThemaArticleList() throws IOException {
+	public TopThemaArticleDownloader() throws IOException {
 		rootDocument = Utilities.retrieveHtmlDocument(TOP_THEMA_ROOT_LINK);
 	}
 
@@ -40,12 +41,24 @@ public class TopThemaArticleList implements IArticleList {
 				TopThemaArticle newArticle = TopThemaArticleParser.getArticleFromPage(articleLink);
 				listOfArticles.add(newArticle);
 				System.out.println("Added new article: " + newArticle);
+                notifyListeners(newArticle);
 			}
 		}	
 		return listOfArticles;
 	}
 
-	private String getArticleLinkAtIndex(int i) {
+    @Override
+    public void addArticleDownloadedListener(ArticleDownloadedListener listener) {
+        listenerCollection.add(listener);
+    }
+
+    private void notifyListeners(TopThemaArticle newArticle) {
+        for (ArticleDownloadedListener listener : listenerCollection) {
+            listener.onArticleDownloaded(newArticle);
+        }
+    }
+
+    private String getArticleLinkAtIndex(int i) {
 		List<Element> elementsWithLinks = rootDocument.getElementsByAttributeValue("class", "news");
         // We still have to check if it contains a link.
 		if (elementsWithLinks.get(i).getElementsByTag("a") != null) {
