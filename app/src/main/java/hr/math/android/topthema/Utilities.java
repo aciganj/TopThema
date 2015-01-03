@@ -43,7 +43,7 @@ public class Utilities {
         //save location
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
 
-        // get download service and enqueue file
+        //get download service and enqueue file
         DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         manager.enqueue(request);
     }
@@ -82,12 +82,13 @@ public class Utilities {
         Document htmlDocument = null;
         boolean documentRetrieved = false;
 
-        //in case the an exception occurs.
+        //in case an exception occurs.
         while (!documentRetrieved) {
             try {
                 htmlDocument = Jsoup.connect(link).get();
                 documentRetrieved = true;
-            } catch (SocketTimeoutException e) {}
+            } catch (SocketTimeoutException e) {
+            }
         }
         return htmlDocument;
     }

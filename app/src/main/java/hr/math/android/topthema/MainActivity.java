@@ -1,36 +1,45 @@
 package hr.math.android.topthema;
 
-import android.app.ListActivity;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
+import hr.math.android.topthema.articles.ArticleAdapter;
 import hr.math.android.topthema.articles.ArticleDownloadedListener;
 import hr.math.android.topthema.articles.IArticleDownloader;
 import hr.math.android.topthema.articles.TopThemaArticle;
 import hr.math.android.topthema.articles.TopThemaArticleDownloader;
 
-
-public class MainActivity extends ListActivity {
+public class MainActivity extends Activity {
     /**
-     * An {@link android.widget.ArrayAdapter} that holds a reference to {@link #articles}.
+     * An {@link hr.math.android.topthema.articles.ArticleAdapter} that holds a reference to {@link #articles}.
      */
-    private ArrayAdapter<TopThemaArticle> topThemaAdapter;
+    private ArticleAdapter topThemaAdapter;
     /**
      * All the articles that were downloaded.
      */
-    private List<TopThemaArticle> articles;
+    private ArrayList<TopThemaArticle> articles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         articles = new ArrayList<>();
-        topThemaAdapter = new ArrayAdapter<TopThemaArticle>(MainActivity.this, R.layout.list_item, articles);
-        setListAdapter(topThemaAdapter);
+        topThemaAdapter = new ArticleAdapter(MainActivity.this, articles);
+
+        ListView listView = (ListView) findViewById(R.id.articleListView);
+        listView.setAdapter(topThemaAdapter);
+        listView.setOnItemClickListener(articleListListener);
+
         new DownloadArticlesTask().execute();
     }
 
@@ -44,7 +53,7 @@ public class MainActivity extends ListActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
-            IArticleDownloader articleList = null;
+            IArticleDownloader articleList;
             try {
                 articleList = new TopThemaArticleDownloader();
                 articleList.addArticleDownloadedListener(new ArticleDownloadedListener() {
@@ -58,7 +67,7 @@ public class MainActivity extends ListActivity {
                 articleList.getLatestArticles();
             } catch (IOException e) {
                 e.printStackTrace();
-            };
+            }
             return null;
         }
 
@@ -69,4 +78,20 @@ public class MainActivity extends ListActivity {
             topThemaAdapter.notifyDataSetChanged();
         }
     }
+
+    /**
+     * Item click listener for listView. Starts activity for contact details.
+     */
+    private OnItemClickListener articleListListener = new OnItemClickListener() {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+            intent.putExtra("title", articles.get(position).getTitle());
+
+            startActivity(intent);
+
+        }
+    };
 }
