@@ -42,8 +42,7 @@ public class ArticleAdapter extends ArrayAdapter<TopThemaArticle> {
         TextView dateTextView = (TextView) view.findViewById(R.id.dateTV);
 
         titleTextView.setText(getItem(position).getTitle());
-        //dateTextView.setText(getItem(position).getDate()); TODO
-        dateTextView.setText("13.13.1313.");
+        dateTextView.setText(getItem(position).getDate());
         return view;
 
     }
