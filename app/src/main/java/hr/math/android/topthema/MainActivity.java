@@ -89,6 +89,8 @@ public class MainActivity extends Activity {
 
             Intent intent = new Intent(MainActivity.this, SecondActivity.class);
             intent.putExtra("title", articles.get(position).getTitle());
+            intent.putExtra("intro", articles.get(position).getIntro());
+            intent.putExtra("text", articles.get(position).getLongText());
 
             startActivity(intent);
 

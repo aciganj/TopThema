@@ -2,6 +2,7 @@ package hr.math.android.topthema;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -13,8 +14,15 @@ public class SecondActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
-        TextView tv = (TextView) findViewById(R.id.exampleTV);
-        tv.setText(getIntent().getExtras().getString("title"));
+
+        TextView titleTV = (TextView) findViewById(R.id.titleTV);
+        String title = getIntent().getExtras().getString("title");
+        titleTV.setText(title);
+
+        TextView textTV = (TextView) findViewById(R.id.textTV);
+        String intro = getIntent().getExtras().getString("intro");
+        String text = getIntent().getExtras().getString("text");
+        textTV.setText(Html.fromHtml(intro + text));
 
     }
 

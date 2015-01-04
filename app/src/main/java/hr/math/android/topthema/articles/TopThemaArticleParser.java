@@ -38,18 +38,16 @@ public class TopThemaArticleParser {
 
 
     private static String getTitle(Document rootDocument) {
-        String titleWithDash = rootDocument.getElementsByAttributeValue("name", "media_title").attr("value");
-        // Remove the  – das Top-Thema als MP3 from the title
-        String title = titleWithDash.substring(0, titleWithDash.indexOf('–') - 1);
-        return title;
+        String title = rootDocument.getElementsByTag("title").get(0).text();
+        return title.substring(0, title.indexOf("| "));
     }
 
     private static String getIntro(Document rootDocument) {
-        return rootDocument.getElementsByClass("intro").get(0).text();
+        return rootDocument.getElementsByClass("intro").get(0).toString();
     }
 
     private static String getLongText(Document rootDocument) {
-        return rootDocument.getElementsByClass("longText").get(0).text();
+        return rootDocument.getElementsByClass("longText").get(0).toString();
     }
 
     private static String getMp3Link(Document rootDocument) {

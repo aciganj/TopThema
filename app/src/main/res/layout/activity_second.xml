@@ -9,9 +9,21 @@
     tools:context="hr.math.android.topthema.SecondActivity">
 
     <TextView
-        android:id="@+id/exampleTV"
+        android:id="@+id/titleTV"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:gravity="center"
+        android:textIsSelectable="true"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:text="No Title"/>
+
+    <TextView
+        android:id="@+id/textTV"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:text="@string/hello_world" />
+        android:textIsSelectable="true"
+        android:text="No Text"
+        android:layout_below="@+id/titleTV" />
 
 </RelativeLayout>
