@@ -27,6 +27,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import hr.math.android.topthema.DAO.DAO;
+import hr.math.android.topthema.DAO.DAOProvider;
 import hr.math.android.topthema.articles.ArticleAdapter;
 import hr.math.android.topthema.articles.ArticleDownloadedListener;
 import hr.math.android.topthema.articles.ISiteScraper;
@@ -54,7 +56,13 @@ public class MainActivity extends Activity {
         try {
             is = MainActivity.this.getResources().getAssets().open("TopThemaArticles.json");
             TopThemaArticle[] articlesArray = gson.fromJson(new InputStreamReader(is), TopThemaArticle[].class);
-            int i = 2;
+
+            DAO dao = DAOProvider.getDAO();
+            dao.save(articlesArray);
+
+            List<TopThemaArticle> articles1 = dao.loadAllArticles();
+            int l = 1;
+
         } catch (IOException e) {
             e.printStackTrace();
         }

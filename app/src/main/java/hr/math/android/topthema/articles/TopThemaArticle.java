@@ -1,5 +1,9 @@
 package hr.math.android.topthema.articles;
 
+import com.activeandroid.Model;
+import com.activeandroid.annotation.Column;
+import com.activeandroid.annotation.Table;
+
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
@@ -12,11 +16,17 @@ import hr.math.android.topthema.Utilities;
  * @author Alen Kosanović
  *
  */
-public class TopThemaArticle {
+@Table(name = "TopThemaArticles")
+public class TopThemaArticle extends Model {
+    @Column(name = "URI")
 	private String URI;
-	private String title;
+    @Column(name = "title")
+    private String title;
+    @Column(name = "description")
 	private String description;
+    @Column(name = "longtext")
 	private String longText = "";
+    @Column(name = "mp3link")
 	private String mp3Link = "";
 	
 	public TopThemaArticle() {
