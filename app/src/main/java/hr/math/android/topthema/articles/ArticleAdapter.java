@@ -39,10 +39,10 @@ public class ArticleAdapter extends ArrayAdapter<TopThemaArticle> {
         }
 
         TextView titleTextView = (TextView) view.findViewById(R.id.titleTV);
-        TextView dateTextView = (TextView) view.findViewById(R.id.dateTV);
+        TextView descriptionView = (TextView) view.findViewById(R.id.descriptionTV);
 
         titleTextView.setText(getItem(position).getTitle());
-        dateTextView.setText(getItem(position).getDate());
+        descriptionView.setText(getItem(position).getDescription());
         return view;
 
     }

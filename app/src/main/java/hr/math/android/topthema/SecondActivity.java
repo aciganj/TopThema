@@ -20,12 +20,9 @@ public class SecondActivity extends ActionBarActivity {
         titleTV.setText(title);
 
         TextView textTV = (TextView) findViewById(R.id.textTV);
-        String intro = getIntent().getExtras().getString("intro");
         String text = getIntent().getExtras().getString("text");
-        textTV.setText(Html.fromHtml(intro + text));
-
+        textTV.setText(Html.fromHtml(text));
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

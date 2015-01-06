@@ -19,7 +19,7 @@
     <!-- Article date text view -->
 
     <TextView
-        android:id="@+id/dateTV"
+        android:id="@+id/descriptionTV"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium" />

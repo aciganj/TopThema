@@ -1,7 +1,5 @@
 package hr.math.android.topthema.articles;
 
-import com.orm.SugarRecord;
-
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
@@ -14,7 +12,7 @@ import hr.math.android.topthema.Utilities;
  * @author Alen Kosanović
  *
  */
-public class TopThemaArticle extends SugarRecord<TopThemaArticle> {
+public class TopThemaArticle {
 	private String URI;
 	private String title;
 	private String description;

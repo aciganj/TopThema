@@ -6,4 +6,5 @@ import java.util.List;
 public interface ISiteScraper {
 	List<TopThemaArticle> getArchiveArticles(String archiveURL, boolean fullInfo) throws IOException;
 	List<TopThemaArticle> getAllArticles(boolean fullInfo) throws IOException;
+    void addArticleDownloadedListener(ArticleDownloadedListener listener);
 }
