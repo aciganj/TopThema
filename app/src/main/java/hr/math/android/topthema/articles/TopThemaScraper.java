@@ -3,7 +3,11 @@ package hr.math.android.topthema.articles;
 import hr.math.android.topthema.Utilities;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.jsoup.nodes.Document;
@@ -24,13 +28,14 @@ public class TopThemaScraper implements ISiteScraper {
             String URI = BASE_URL + element.getElementsByTag("a").attr("href").trim();
             String title = element.getElementsByTag("h2").text().trim();
             String description = element.getElementsByTag("p").text().trim();
+            Date date = getDate(description);
 
-            TopThemaArticle article = new TopThemaArticle(URI, title, description);
+            TopThemaArticle article = new TopThemaArticle(URI, title, description, date);
             if (fullInfo) {
-                Document document = Utilities.retrieveHtmlDocument(URI);
-                String longText = TopThemaDownloader.getLongText(document);
-                String mp3Link = TopThemaDownloader.getMp3Link(document);
-                article = new TopThemaArticle(URI, title, description, longText, mp3Link);
+                Document articleDocument = Utilities.retrieveHtmlDocument(URI);
+                String longText = getLongText(articleDocument);
+                String mp3Link = getMp3Link(articleDocument);
+                article = new TopThemaArticle(URI, title, description, longText, mp3Link, date);
             }
             System.out.println("Adding: " + article);
             listOfArticles.add(article);
@@ -58,22 +63,34 @@ public class TopThemaScraper implements ISiteScraper {
         return listOfArticles;
     }
 
+    private static String getLongText(Document rootDocument) {
+        return rootDocument.getElementsByClass("intro").get(0).toString()
+                + rootDocument.getElementsByClass("longText").get(0).toString();
+    }
+
+    private static String getMp3Link(Document rootDocument) {
+        return rootDocument.getElementsByAttributeValue("name", "file_name").attr("value");
+    }
+
+    private static Date getDate(String description) {
+        String dateString = MonthParser.parseDate(description);
+        DateFormat formatter = new SimpleDateFormat("dd MM yyyy");
+        Date date = null;
+        try {
+            if (dateString == null) {
+                date = formatter.parse("01 01 2007");
+            } else {
+                date = formatter.parse(dateString);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
+
     @Override
     public void addArticleDownloadedListener(ArticleDownloadedListener listener) {
         listeners.add(listener);
     }
 
-//	private static String getDate(Document rootDocument) {
-//		String title = rootDocument.getElementsByTag("title").get(0).text();
-//		String date = title.substring(title.lastIndexOf("| ") + 2);
-//		DateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
-//		Date date1 = null;
-//		try {
-//			date1 = formatter.parse(date);
-//		} catch (ParseException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		return date;
-//	}
 }

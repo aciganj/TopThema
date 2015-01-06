@@ -44,6 +44,7 @@ public class MainActivity extends Activity {
      * All the articles that were downloaded.
      */
     private ArrayList<TopThemaArticle> articles;
+    private DAO dao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,12 +53,13 @@ public class MainActivity extends Activity {
 
         articles = new ArrayList<>();
         Gson gson = new Gson();
+        DAO dao = DAOProvider.getDAO();
         InputStream is = null;
+
         try {
             is = MainActivity.this.getResources().getAssets().open("TopThemaArticles.json");
             TopThemaArticle[] articlesArray = gson.fromJson(new InputStreamReader(is), TopThemaArticle[].class);
 
-            DAO dao = DAOProvider.getDAO();
             dao.save(articlesArray);
 
             List<TopThemaArticle> articles1 = dao.loadAllArticles();
@@ -144,11 +146,7 @@ public class MainActivity extends Activity {
 
             Intent intent = new Intent(MainActivity.this, SecondActivity.class);
             intent.putExtra("title", articles.get(position).getTitle());
-            try {
-                intent.putExtra("text", articles.get(position).getLongText());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            intent.putExtra("text", articles.get(position).getLongText());
 
             startActivity(intent);
 
