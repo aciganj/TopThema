@@ -90,7 +90,9 @@ public class ArticleActivity extends ActionBarActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mp.stop();
+        if (mp != null && mp.isPlaying()) {
+            mp.stop();
+        }
     }
 
     @Override
