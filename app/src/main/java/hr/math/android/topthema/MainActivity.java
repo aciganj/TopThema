@@ -1,6 +1,8 @@
 package hr.math.android.topthema;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -85,13 +87,13 @@ public class MainActivity extends Activity {
     private OnItemClickListener articleListListener = new OnItemClickListener() {
 
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
 
-            Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+            Intent intent = new Intent(MainActivity.this, ArticleActivity.class);
             intent.putExtra("title", articles.get(position).getTitle());
             intent.putExtra("intro", articles.get(position).getIntro());
             intent.putExtra("text", articles.get(position).getLongText());
-
+            intent.putExtra("mp3link", articles.get(position).getMp3Link());
             startActivity(intent);
 
         }

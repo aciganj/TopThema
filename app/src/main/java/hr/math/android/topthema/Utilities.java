@@ -23,18 +23,15 @@ public class Utilities {
     /**
      * Downloads and saves file from give url.
      *
-     * @param url      url from which the file will be downloaded
+     * @param url   url from which the file will be downloaded
      * @param fileName name of the file, must contain extension
      */
-    public static void saveFile(String url, String fileName, Context context) {
+    public static void saveMP3(String url, String fileName, Context context) {
 
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 
-
-        //fileName without extension
-        String title = fileName.substring(0, fileName.lastIndexOf('.'));
-        request.setTitle(title);
-        request.setDescription("One of Top-Thema files");//TODO
+        request.setTitle(fileName.substring(0, fileName.lastIndexOf('.')));
+        request.setDescription("Top-Thema mp3 file");
 
         //scans for meta data to allow queries... no need?
         request.allowScanningByMediaScanner();
