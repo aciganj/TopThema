@@ -1,141 +1,40 @@
 package hr.math.android.topthema;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.JsonReader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
-import com.google.gson.Gson;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import hr.math.android.topthema.DAO.DAO;
 import hr.math.android.topthema.DAO.DAOProvider;
 import hr.math.android.topthema.articles.ArticleAdapter;
-import hr.math.android.topthema.articles.ArticleDownloadedListener;
-import hr.math.android.topthema.articles.ISiteScraper;
 import hr.math.android.topthema.articles.TopThemaArticle;
-import hr.math.android.topthema.articles.TopThemaScraper;
+import hr.math.android.topthema.web.DownloadArticleTask;
+import hr.math.android.topthema.web.InitializerTask;
+import hr.math.android.topthema.web.RefreshTask;
 
 public class MainActivity extends Activity {
     /**
-     * An {@link hr.math.android.topthema.articles.ArticleAdapter} that holds a reference to {@link #articles}.
+     * An {@link hr.math.android.topthema.articles.ArticleAdapter} that holds a reference to {@link #articlesOnScreen}.
      */
     private ArticleAdapter topThemaAdapter;
     /**
      * All the articles that were downloaded.
      */
-    private ArrayList<TopThemaArticle> articles;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private List<TopThemaArticle> articlesOnScreen;
     private DAO dao;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        articles = new ArrayList<>();
-        Gson gson = new Gson();
-        DAO dao = DAOProvider.getDAO();
-        InputStream is = null;
-
-        try {
-            is = MainActivity.this.getResources().getAssets().open("TopThemaArticles.json");
-            TopThemaArticle[] articlesArray = gson.fromJson(new InputStreamReader(is), TopThemaArticle[].class);
-
-            dao.save(articlesArray);
-
-            List<TopThemaArticle> articles1 = dao.loadAllArticles();
-            int l = 1;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        topThemaAdapter = new ArticleAdapter(MainActivity.this, articles);
-
-        ListView listView = (ListView) findViewById(R.id.articleListView);
-        listView.setAdapter(topThemaAdapter);
-        listView.setOnItemClickListener(articleListListener);
-
-        //new DownloadArticlesTask().execute();
-    }
-
-    private String readEntireJSON() {
-        StringBuilder sb = new StringBuilder();
-        try {
-            InputStream is = MainActivity.this.getResources().getAssets().open("TopThemaArticles.json");
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-
-            for (String line = br.readLine(); line != null && !line.isEmpty(); line = br.readLine()) {
-                sb.append(line);
-            }
-            br.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Http operations cannot be executed in a UI Thread, therefore, an {@link android.os.AsyncTask}
-     * is called that does the internet job.
-     *
-     * @author kosani
-     */
-    private class DownloadArticlesTask extends AsyncTask<Void, TopThemaArticle, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            ISiteScraper siteScraper;
-            try {
-                siteScraper = new TopThemaScraper();
-                siteScraper.addArticleDownloadedListener(new ArticleDownloadedListener() {
-
-                    @Override
-                    public void onArticleDownloaded(TopThemaArticle newArticle) {
-                        articles.add(newArticle);
-                        //publishProgress(newArticle);
-                    }
-                });
-                siteScraper.getAllArticles(false);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        // Since UI updates must be made only from the UI thread, we need to call the notifyDataSetChanged
-        // inside this method (which allows modifying the UI).
-        @Override
-        protected void onProgressUpdate(TopThemaArticle... values) {
-            topThemaAdapter.notifyDataSetChanged();
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            topThemaAdapter.notifyDataSetChanged();
-        }
-    }
-
+    private int articlesOnScreenNum = 10;
     /**
      * Item click listener for listView. Starts activity for contact details.
      */
@@ -143,13 +42,79 @@ public class MainActivity extends Activity {
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-            Intent intent = new Intent(MainActivity.this, SecondActivity.class);
-            intent.putExtra("title", articles.get(position).getTitle());
-            intent.putExtra("text", articles.get(position).getLongText());
-
-            startActivity(intent);
-
+            TopThemaArticle article = articlesOnScreen.get(position);
+            if (article.isStripped()) {
+                new DownloadArticleTask(MainActivity.this).execute(article);
+            } else {
+                startSecondActivity(article);
+            }
         }
     };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        dao = DAOProvider.getDAO();
+
+        articlesOnScreen = new ArrayList<>();
+        topThemaAdapter = new ArticleAdapter(MainActivity.this, (ArrayList<TopThemaArticle>) articlesOnScreen);
+
+        ListView listView = (ListView) findViewById(R.id.articleListView);
+        listView.setAdapter(topThemaAdapter);
+        listView.setOnItemClickListener(articleListListener);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Date latestDate = getLatestArticle();
+                new RefreshTask(MainActivity.this, dao, articlesOnScreen, articlesOnScreenNum,
+                        mSwipeRefreshLayout, topThemaAdapter).execute(latestDate);
+            }
+        });
+
+        TextView refreshTV = new TextView(this);
+        refreshTV.setText("Swipe to refresh");
+        refreshTV.setGravity(View.TEXT_ALIGNMENT_CENTER);
+        listView.addHeaderView(refreshTV);
+
+        Button loadMoreButton = new Button(this);
+        loadMoreButton.setText("Load more");
+        loadMoreButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                articlesOnScreenNum += 10;
+                List<TopThemaArticle> newArticles = dao.loadLatest(articlesOnScreenNum);
+                articlesOnScreen.clear();
+                articlesOnScreen.addAll(newArticles);
+                topThemaAdapter.notifyDataSetChanged();
+            }
+        });
+        listView.addFooterView(loadMoreButton);
+
+        if (!dao.isDatabaseInstantiated()) {
+            new InitializerTask(MainActivity.this, dao, articlesOnScreen, articlesOnScreenNum, topThemaAdapter).execute();
+        } else {
+            dao.deleteLast(3);
+            articlesOnScreen.addAll(dao.loadLatest(articlesOnScreenNum));
+            topThemaAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private Date getLatestArticle() {
+        if (!articlesOnScreen.isEmpty()) {
+            return articlesOnScreen.get(0).getDate();
+        } else {
+            return null;
+        }
+    }
+
+    public void startSecondActivity(TopThemaArticle article) {
+        Intent intent = new Intent(this, SecondActivity.class);
+        intent.putExtra("title", article.getTitle());
+        intent.putExtra("text", article.getLongText());
+        startActivity(intent);
+    }
 }

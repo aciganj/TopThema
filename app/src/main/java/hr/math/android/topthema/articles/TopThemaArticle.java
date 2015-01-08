@@ -18,7 +18,7 @@ import hr.math.android.topthema.Utilities;
  *
  */
 @Table(name = "TopThema")
-public class TopThemaArticle extends Model {
+public class TopThemaArticle extends Model implements Comparable<TopThemaArticle> {
     @Column(name = "URI")
     private String URI;
     @Column(name = "title")
@@ -51,11 +51,6 @@ public class TopThemaArticle extends Model {
         this.longText = longText;
         this.mp3Link = mp3Link;
         this.date = date;
-    }
-
-    public void stripArticle() {
-        longText = null;
-        mp3Link = null;
     }
 
     /**
@@ -102,11 +97,26 @@ public class TopThemaArticle extends Model {
         longText = null;
     }
 
+    public boolean isStripped() {
+        return longText == null;
+    }
+
+    public void downloadFullData() throws IOException {
+        Document rootDocument = Utilities.retrieveHtmlDocument(URI);
+        mp3Link = TopThemaDownloader.getMp3Link(rootDocument);
+        longText = TopThemaDownloader.getLongText(rootDocument);
+    }
+
     /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
+             * @see java.lang.Object#toString()
+             */
     @Override
     public String toString() {
         return title;
+    }
+
+    @Override
+    public int compareTo(TopThemaArticle another) {
+        return this.date.compareTo(another.date);
     }
 }

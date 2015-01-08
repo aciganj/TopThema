@@ -1,5 +1,7 @@
 package hr.math.android.topthema.articles;
 
+import android.util.Log;
+
 import hr.math.android.topthema.Utilities;
 
 import java.io.IOException;
@@ -7,6 +9,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -37,30 +41,61 @@ public class TopThemaScraper implements ISiteScraper {
                 String mp3Link = getMp3Link(articleDocument);
                 article = new TopThemaArticle(URI, title, description, longText, mp3Link, date);
             }
-            System.out.println("Adding: " + article);
+            Log.i("WEB", "Article found - " + article);
             listOfArticles.add(article);
-            notify(article);
+            notifyListeners(article);
         }
         return listOfArticles;
     }
 
-    private void notify(TopThemaArticle article) {
+    @Override
+    public List<TopThemaArticle> getArchiveArticles(int archiveIndex, boolean fullInfo) throws IOException {
+        Document rootDocument = Utilities.retrieveHtmlDocument(TOP_THEMA_URL);
+        List<Element> elementsWithLinks = rootDocument.getElementsByAttributeValue("class", "linkList intern");
+        String URI = BASE_URL + elementsWithLinks.get(archiveIndex).getElementsByTag("a").attr("href").trim();
+        return getArchiveArticles(URI, false);
+    }
+
+    private void notifyListeners(TopThemaArticle article) {
         for (ArticleDownloadedListener listener : listeners) {
             listener.onArticleDownloaded(article);
         }
+    }
+
+    private int getArchivesNum() throws IOException {
+        Document rootDocument = Utilities.retrieveHtmlDocument(TOP_THEMA_URL);
+        List<Element> elementsWithLinks = rootDocument.getElementsByAttributeValue("class", "linkList intern");
+        return elementsWithLinks.size();
     }
 
     @Override
     public List<TopThemaArticle> getAllArticles(boolean fullInfo) throws IOException {
         List<TopThemaArticle> listOfArticles = new ArrayList<TopThemaArticle>();
         Document rootDocument = Utilities.retrieveHtmlDocument(TOP_THEMA_URL);
-
         List<Element> elementsWithLinks = rootDocument.getElementsByAttributeValue("class", "linkList intern");
         for (Element element : elementsWithLinks) {
             String URI = BASE_URL + element.getElementsByTag("a").attr("href").trim();
             listOfArticles.addAll(getArchiveArticles(URI, fullInfo));
         }
         return listOfArticles;
+    }
+
+    @Override
+    public List<TopThemaArticle> getArticlesFromDate(Date date, boolean fullInfo) throws IOException {
+        int archivesNum = getArchivesNum();
+
+        List<TopThemaArticle> articles = new ArrayList<>();
+        for (int archiveNum = archivesNum - 1; archiveNum >= 0; archiveNum--) {
+            articles.addAll(0, getArchiveArticles(archiveNum, fullInfo));
+            Date currentArticleDate = articles.get(0).getDate();
+            if (currentArticleDate.compareTo(date) <= 0) {
+                break;
+            }
+        }
+        while (!articles.isEmpty() && articles.get(0).getDate().compareTo(date) <= 0) {
+            articles.remove(0);
+        }
+        return articles;
     }
 
     private static String getLongText(Document rootDocument) {

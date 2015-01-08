@@ -84,11 +84,8 @@ public class Utilities {
 
         //in case an exception occurs.
         while (!documentRetrieved) {
-            try {
                 htmlDocument = Jsoup.connect(link).get();
                 documentRetrieved = true;
-            } catch (SocketTimeoutException e) {
-            }
         }
         return htmlDocument;
     }
