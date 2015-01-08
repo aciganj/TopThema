@@ -17,7 +17,7 @@ public class SecondActivity extends ActionBarActivity {
 
         TextView titleTV = (TextView) findViewById(R.id.titleTV);
         String title = getIntent().getExtras().getString("title");
-        titleTV.setText(title);
+        this.setTitle(title);
 
         TextView textTV = (TextView) findViewById(R.id.textTV);
         String text = getIntent().getExtras().getString("text");
