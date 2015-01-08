@@ -3,7 +3,6 @@ package hr.math.android.topthema.web;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.Date;
@@ -54,7 +53,7 @@ public class RefreshTask extends AsyncTask<Date, Void, TopThemaArticle> {
     @Override
     protected void onPostExecute(TopThemaArticle article) {
         articlesOnScreen.clear();
-        articlesOnScreen.addAll(dao.loadLatest(articlesOnScreenNum));
+        articlesOnScreen.addAll(dao.getLatest(articlesOnScreenNum));
         mSwipeRefreshLayout.setRefreshing(false);
         topThemaAdapter.notifyDataSetChanged();
     }

@@ -17,7 +17,7 @@ import hr.math.android.topthema.articles.TopThemaArticle;
 public class ActiveAndroidDAO implements DAO {
     @Override
     public boolean isDatabaseInstantiated() {
-        List<TopThemaArticle> list = loadLatest(1);
+        List<TopThemaArticle> list = getLatest(1);
         return list != null && !list.isEmpty();
     }
 
@@ -58,13 +58,23 @@ public class ActiveAndroidDAO implements DAO {
     }
 
     @Override
-    public List<TopThemaArticle> loadAllArticles() {
+    public List<TopThemaArticle> getAllArticles() {
         return new Select().all().from(TopThemaArticle.class).execute();
     }
 
     @Override
-    public List<TopThemaArticle> loadLatest(int num) {
+    public List<TopThemaArticle> getLatest(int num) {
         return new Select().all().from(TopThemaArticle.class).orderBy("date DESC").limit(num).execute();
+    }
+
+    @Override
+    public List<TopThemaArticle> getArticlesWithMP3() {
+        return new Select().all().from(TopThemaArticle.class).where("mp3link IS NOT NULL").execute();
+    }
+
+    @Override
+    public List<TopThemaArticle> getArticlesWithFullInfo() {
+        return new Select().all().from(TopThemaArticle.class).where("longtext IS NOT NULL").execute();
     }
 
     @Override
@@ -74,10 +84,15 @@ public class ActiveAndroidDAO implements DAO {
 
     @Override
     public void deleteLast(int num) {
-        List<TopThemaArticle> articles = loadLatest(3);
+        List<TopThemaArticle> articles = getLatest(3);
         for (TopThemaArticle article : articles) {
-            new Delete().from(TopThemaArticle.class).where("URI == ?", article.getURI()).execute();
+            delete(article.getURI());
         }
+    }
+
+    @Override
+    public void delete(String URI) {
+        new Delete().from(TopThemaArticle.class).where("URI == ?", URI).execute();
     }
 
 }

@@ -7,7 +7,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
-import hr.math.android.topthema.SecondActivity;
+import hr.math.android.topthema.ArticleActivity;
 import hr.math.android.topthema.articles.TopThemaArticle;
 
 /**
@@ -36,10 +36,14 @@ public class DownloadArticleTask extends AsyncTask<TopThemaArticle, Void, TopThe
     @Override
     protected void onPostExecute(TopThemaArticle article) {
         if (!article.isStripped()) {
-            //TODO refactor later
-            Intent intent = new Intent(callerActivity, SecondActivity.class);
+            //TODO refactor
+            Intent intent = new Intent(callerActivity, ArticleActivity.class);
             intent.putExtra("title", article.getTitle());
             intent.putExtra("text", article.getLongText());
+            intent.putExtra("mp3link", article.getMp3Link());
+            intent.putExtra("URI", article.getURI());
+            intent.putExtra("date", article.getDate());
+            intent.putExtra("description", article.getDescription());
             callerActivity.startActivity(intent);
         }
     }

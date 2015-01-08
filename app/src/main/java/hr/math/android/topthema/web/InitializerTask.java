@@ -6,8 +6,6 @@ package hr.math.android.topthema.web;
 
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
@@ -56,7 +54,7 @@ public class InitializerTask extends AsyncTask<Void, TopThemaArticle, Void> {
 
     @Override
     protected void onPostExecute(Void aVoid) {
-        articlesOnScreen.addAll(dao.loadLatest(articlesOnScreenNum));
+        articlesOnScreen.addAll(dao.getLatest(articlesOnScreenNum));
         topThemaAdapter.notifyDataSetChanged();
     }
 }

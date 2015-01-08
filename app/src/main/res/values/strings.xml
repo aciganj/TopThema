@@ -9,6 +9,6 @@
     <string name="mp3">Text and mp3</string>
     <string name="text_only">Only text</string>
     <string name="cancel">Cancel</string>
-
+    <string name="title_activity_main">MainsdaActivity</string>
 
 </resources>

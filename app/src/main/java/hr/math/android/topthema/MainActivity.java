@@ -1,9 +1,11 @@
 package hr.math.android.topthema;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -23,7 +25,7 @@ import hr.math.android.topthema.web.DownloadArticleTask;
 import hr.math.android.topthema.web.InitializerTask;
 import hr.math.android.topthema.web.RefreshTask;
 
-public class MainActivity extends Activity {
+public class MainActivity extends ActionBarActivity {
     /**
      * An {@link hr.math.android.topthema.articles.ArticleAdapter} that holds a reference to {@link #articlesOnScreen}.
      */
@@ -32,8 +34,14 @@ public class MainActivity extends Activity {
      * All the articles that were downloaded.
      */
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    /**
+     * {@link hr.math.android.topthema.articles.TopThemaArticle} displayed on the screen.
+     */
     private List<TopThemaArticle> articlesOnScreen;
     private DAO dao;
+    /**
+     * Number of {@link hr.math.android.topthema.articles.TopThemaArticle}s displayed.
+     */
     private int articlesOnScreenNum = 10;
     /**
      * Item click listener for listView. Starts activity for contact details.
@@ -86,7 +94,7 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 articlesOnScreenNum += 10;
-                List<TopThemaArticle> newArticles = dao.loadLatest(articlesOnScreenNum);
+                List<TopThemaArticle> newArticles = dao.getLatest(articlesOnScreenNum);
                 articlesOnScreen.clear();
                 articlesOnScreen.addAll(newArticles);
                 topThemaAdapter.notifyDataSetChanged();
@@ -98,9 +106,31 @@ public class MainActivity extends Activity {
             new InitializerTask(MainActivity.this, dao, articlesOnScreen, articlesOnScreenNum, topThemaAdapter).execute();
         } else {
             dao.deleteLast(3);
-            articlesOnScreen.addAll(dao.loadLatest(articlesOnScreenNum));
+            articlesOnScreen.addAll(dao.getLatest(articlesOnScreenNum));
             topThemaAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private Date getLatestArticle() {
@@ -112,9 +142,16 @@ public class MainActivity extends Activity {
     }
 
     public void startSecondActivity(TopThemaArticle article) {
-        Intent intent = new Intent(this, SecondActivity.class);
-        intent.putExtra("title", article.getTitle());
-        intent.putExtra("text", article.getLongText());
-        startActivity(intent);
+        if (!article.isStripped()) {
+            //TODO refactor (repeating twice)
+            Intent intent = new Intent(this, ArticleActivity.class);
+            intent.putExtra("title", article.getTitle());
+            intent.putExtra("text", article.getLongText());
+            intent.putExtra("mp3link", article.getMp3Link());
+            intent.putExtra("URI", article.getURI());
+            intent.putExtra("date", article.getDate());
+            intent.putExtra("description", article.getDescription());
+            startActivity(intent);
+        }
     }
 }
