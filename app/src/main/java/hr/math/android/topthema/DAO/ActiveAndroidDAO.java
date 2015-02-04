@@ -39,8 +39,7 @@ public class ActiveAndroidDAO implements DAO {
                     save(article);
                 }
                 ActiveAndroid.setTransactionSuccessful();
-            }
-            finally {
+            } finally {
                 ActiveAndroid.endTransaction();
             }
         }

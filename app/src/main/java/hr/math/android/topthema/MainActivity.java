@@ -50,7 +50,7 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            TopThemaArticle article = articlesOnScreen.get(position);
+            TopThemaArticle article = articlesOnScreen.get((int) id);
             if (article.isStripped()) {
                 new DownloadArticleTask(MainActivity.this).execute(article);
             } else {
