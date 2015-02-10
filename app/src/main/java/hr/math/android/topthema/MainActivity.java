@@ -142,6 +142,8 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void startSecondActivity(TopThemaArticle article) {
+
+
         if (!article.isStripped()) {
             //TODO refactor (repeating twice)
             Intent intent = new Intent(this, ArticleActivity.class);
