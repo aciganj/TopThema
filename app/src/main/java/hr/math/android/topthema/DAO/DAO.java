@@ -39,12 +39,17 @@ public interface DAO {
      * @return num latest {@link hr.math.android.topthema.articles.TopThemaArticle}s
      */
     List<TopThemaArticle> getLatest(int num);
-    List<TopThemaArticle> getArticlesWithMP3();
+
 
     /**
      * @return all {@link hr.math.android.topthema.articles.TopThemaArticle}s with some info.
      */
     List<TopThemaArticle> getArticlesWithFullInfo();
+
+    /**
+     * @return all {@link hr.math.android.topthema.articles.TopThemaArticle}s with mp3s.
+     */
+    public List<TopThemaArticle> getArticlesWithMP3();
 
     /**
      * Used only for testing. Deletes all articles.
@@ -53,6 +58,7 @@ public interface DAO {
 
     /**
      * Used only for testing. Deletes last num articles.
+     *
      * @param num
      */
     void deleteLast(int num);
