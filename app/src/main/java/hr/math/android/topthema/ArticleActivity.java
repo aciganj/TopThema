@@ -75,10 +75,10 @@ public class ArticleActivity extends ActionBarActivity {
 
                 if (!dst.exists()) {
                     String[] children = folder.list();
-                    if (children.length > 10) {
+                    if (children.length > 3) {
                         List<File> childrenFiles = new ArrayList<File>();
-                        for (int i = 0; i < 10; i++) {
-                            File child = new File(folder + children[i]);
+                        for (int i = 0; i < children.length; i++) {
+                            File child = new File(folder + "/" + children[i]);
                             childrenFiles.add(child);
                         }
                         Collections.sort(childrenFiles, new Comparator<File>() {
