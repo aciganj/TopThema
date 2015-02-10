@@ -39,6 +39,10 @@ public interface DAO {
      * @return num latest {@link hr.math.android.topthema.articles.TopThemaArticle}s
      */
     List<TopThemaArticle> getLatest(int num);
+
+    /**
+     * @return all {@link hr.math.android.topthema.articles.TopThemaArticle}s that have MP3 downloaded.
+     */
     List<TopThemaArticle> getArticlesWithMP3();
 
     /**
