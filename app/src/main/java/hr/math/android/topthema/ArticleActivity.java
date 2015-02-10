@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +21,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import hr.math.android.topthema.articles.TopThemaArticle;
 
@@ -28,6 +34,8 @@ public class ArticleActivity extends ActionBarActivity {
 
     private boolean downloaded;
     private MediaPlayer mp;
+    private File file;
+    private File dst;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +43,19 @@ public class ArticleActivity extends ActionBarActivity {
         setContentView(R.layout.activity_article);
 
         String title = getIntent().getExtras().getString("title");
+        final String link = getIntent().getExtras().getString("mp3link");
+        final String editedTitle = title.trim().replaceAll(" ", "_") + ".mp3";
+        final File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        file = new File(path, editedTitle);
+
+        final File folder = new File(Environment.getExternalStorageDirectory() + "/TopThemaMedia/");
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        dst = new File(folder, editedTitle);
+
+
         this.setTitle(title);
 
         TextView textTV = (TextView) findViewById(R.id.textTV);
@@ -51,22 +72,38 @@ public class ArticleActivity extends ActionBarActivity {
                     mp.stop();
                     return;
                 }
-                //TODO currently saves mp3 to external storage
-                String title = getIntent().getExtras().getString("title");
-                String link = getIntent().getExtras().getString("mp3link");
-                final String editedTitle = title.trim().replaceAll(" ", "_") + ".mp3";
-                final File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                final File file = new File(path, editedTitle);
 
-                if (!file.exists()) {
+                if (!dst.exists()) {
+                    String[] children = folder.list();
+                    if (children.length > 10) {
+                        List<File> childrenFiles = new ArrayList<File>();
+                        for (int i = 0; i < 10; i++) {
+                            File child = new File(folder + children[i]);
+                            childrenFiles.add(child);
+                        }
+                        Collections.sort(childrenFiles, new Comparator<File>() {
+                            @Override
+                            public int compare(File lhs, File rhs) {
+                                if (lhs.lastModified() < rhs.lastModified()) {
+                                    return -1;
+                                }
+                                if (lhs.lastModified() > rhs.lastModified()) {
+                                    return 1;
+                                }
+                                return 0;
+                            }
+                        });
+                        childrenFiles.get(0).delete();
+                    }
                     Utilities.saveMP3(link, editedTitle, ArticleActivity.this);
                 }
 
-                if (file.exists()) {
+                if (dst != null && dst.exists()) {
                     AsyncTask<Void, Void, Void> bs = new AsyncTask<Void, Void, Void>() {
                         @Override
                         protected Void doInBackground(Void... params) {
-                            mp = MediaPlayer.create(ArticleActivity.this, Uri.parse(path + "/" + editedTitle));
+
+                            mp = MediaPlayer.create(ArticleActivity.this, Uri.fromFile(dst));
                             mp.setVolume(100, 100);
                             mp.start();
                             return null;
@@ -76,7 +113,26 @@ public class ArticleActivity extends ActionBarActivity {
                 }
             }
         });
+
+
+        registerReceiver(copyAfterDownload,
+                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
+
+    BroadcastReceiver copyAfterDownload = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            try {
+                Utilities.copyFile(file, dst);
+            } catch (IOException e) {
+                Log.w("myApp", "exception when copying files to internal storage");
+            }
+            if (file.delete()) {
+                Log.w("myApp", "file deleted");
+            }
+        }
+    };
 
     @Override
     protected void onPause() {
@@ -84,5 +140,11 @@ public class ArticleActivity extends ActionBarActivity {
         if (mp != null && mp.isPlaying()) {
             mp.stop();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(copyAfterDownload);
     }
 }
