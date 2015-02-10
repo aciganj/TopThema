@@ -31,7 +31,6 @@ import hr.math.android.topthema.articles.TopThemaArticle;
 
 
 public class ArticleActivity extends ActionBarActivity {
-
     private boolean downloaded;
     private MediaPlayer mp;
     private File file;
@@ -44,7 +43,8 @@ public class ArticleActivity extends ActionBarActivity {
 
         String title = getIntent().getExtras().getString("title");
         final String link = getIntent().getExtras().getString("mp3link");
-        final String editedTitle = title.trim().replaceAll(" ", "_") + ".mp3";
+        final String editedTitle = title.trim().replaceAll(" ", "_").replaceAll("[?!.]", "") + ".mp3";
+
         final File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         file = new File(path, editedTitle);
 
@@ -96,6 +96,8 @@ public class ArticleActivity extends ActionBarActivity {
                         childrenFiles.get(0).delete();
                     }
                     Utilities.saveMP3(link, editedTitle, ArticleActivity.this);
+                    ImageButton ImButton = (ImageButton) findViewById(R.id.imageButton1);
+                    ImButton.setClickable(false);
                 }
 
                 if (dst != null && dst.exists()) {
@@ -125,6 +127,8 @@ public class ArticleActivity extends ActionBarActivity {
 
             try {
                 Utilities.copyFile(file, dst);
+                ImageButton imageButton = (ImageButton) findViewById(R.id.imageButton1);
+                imageButton.setClickable(true);
             } catch (IOException e) {
                 Log.w("myApp", "exception when copying files to internal storage");
             }

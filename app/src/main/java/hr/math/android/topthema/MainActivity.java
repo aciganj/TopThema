@@ -105,7 +105,7 @@ public class MainActivity extends ActionBarActivity {
         if (!dao.isDatabaseInstantiated()) {
             new InitializerTask(MainActivity.this, dao, articlesOnScreen, articlesOnScreenNum, topThemaAdapter).execute();
         } else {
-            dao.deleteLast(3);
+            //dao.deleteLast(3);
             articlesOnScreen.addAll(dao.getLatest(articlesOnScreenNum));
             topThemaAdapter.notifyDataSetChanged();
         }
